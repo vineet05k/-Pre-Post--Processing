@@ -1,0 +1,103 @@
+# To call the different related libraries required for the program//
+
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import csv
+import statistics
+import numpy as np
+
+####################################################################################################################################################
+# To locate and read the file//
+
+csvfile_location = (r'D:/Python/10MSas/Toeplitz3.csv') # For the location of CSV file//
+csvfile_read = pd.read_csv(csvfile_location, index_col=[]) # To read the CSV file//
+print("First 5 elements of all the columns of data file =", csvfile_read.head()) # To print the first five elements of all the columns of CSV file//
+print("Total number of elements in the CSV file =", csvfile_read.count()) # To print the total elements of CSV file//
+
+####################################################################################################################################################
+print('######################################################################################')
+print('######################## AutoCorrelation of the CSV Data File ########################')
+print('######################################################################################')
+
+AutoCorrelated_Data = sm.tsa.acf(csvfile_read, nlags=200) # To find the Auto-correlation of the CSV data file using "sm.tsa.acf command taken from the reference shown below//
+print('AutoCorrelated_Data of the CSV File: ', AutoCorrelated_Data) # To print the Auto-Correlated Data
+'''
+       For reference related to this program check the mentioned URL attached herein below  
+       http://marubon-ds.blogspot.com/2018/01/how-to-check-autocorrelation-on-python.html 
+'''
+
+print ('############# For the Statistical Value of the Auto-correlated CSV File #############')
+
+'''
+        For reference related to this program check the mentioned URL attached herein below
+        https://appdividend.com/2019/01/28/python-statistics-tutorial-mean-function-example/
+        https://docs.python.org/3/library/statistics.html        
+'''
+
+AutoCorrelated_Mean = statistics.mean(AutoCorrelated_Data)
+print("Average of the AutoCorrelated Data =", round(AutoCorrelated_Mean, 8))
+
+AutoCorrelated_Stdev = statistics.stdev(AutoCorrelated_Data)
+print("Standard Deviation of the AutoCorrelated Data =", round(AutoCorrelated_Stdev, 8))
+
+print ('####################   To Generate the AutoCorrelated CSV File #####################')
+
+column_name = ['Auto-Correlation'] # To define the column name of the new generated CSV file related to the Auto-Correlation//
+AutoCorrelationData_rows = [AutoCorrelated_Data] # To Insert the Elements of the Auto-Correlated Data in to the
+# column of the Auto-Correlation//
+AutoCorrelationData_filename = "AutoCorrelated_DataFile.csv" # To save the name of the Auto-Correlated CSV file generated//
+
+# Writing the Auto-Correlation Data to the New Auto-Correlated CSV File Generated//
+with open(AutoCorrelationData_filename, 'w') as csvfile:
+
+    # Creating a CSV Writer Object//
+    csvwriter = csv.writer(csvfile)
+
+    # To Write the Column Name of the Related Fields//
+    csvwriter.writerow(column_name)
+
+    # To Write the Data of the Related Fields//
+    csvwriter.writerows(AutoCorrelationData_rows)
+
+########################################################################################################################
+print('########################################################################################')
+print('#####################   For the Plotting of AutoCorrelated Data ########################')
+print('########################################################################################')
+
+'''
+   For reference related to this program check the mentioned URL attached herein below
+   https://stackoverflow.com/questions/33382619/plot-a-horizontal-line-using-matplotlib
+   https://jakevdp.github.io/PythonDataScienceHandbook/04.01-simple-line-plots.html  
+   https://kite.com/python/examples/2205/matplotlib-plot-a-line-graph-with-a-logarithmic-y-axis-scale
+   http://kestrel.nmt.edu/~raymond/software/python_notes/paper004.html
+   https://matplotlib.org/3.1.1/tutorials/introductory/pyplot.html
+   https://swcarpentry.github.io/python-novice-gapminder/09-plotting/
+   https://python-graph-gallery.com/matplotlib/
+   https://realpython.com/python-matplotlib-guide/  
+'''
+
+AutoCorrelated_Values = np.array(AutoCorrelated_Data) # To read the AutoCorrelated_Values of the AutoCorrelated_Data//
+A1 = AutoCorrelated_Values[AutoCorrelated_Values <= 0] # To select the negative values of the AutoCorrelated_Data//
+A2 = AutoCorrelated_Values[AutoCorrelated_Values >= 0] # To select the positive values of the AutoCorrelated_Data//
+NegativeAutoCorrelated_Values = ((-1)*A1)
+PositiveAutoCorrelated_Values = ((+1)*A2)
+print('NegativeAutoCorrelated_Values')# To print the magnitude of negative values of the AutoCorrelated_Data//
+print('PositiveAutoCorrelated_Values')# To print the magnitude of positive values of the AutoCorrelated_Data//
+
+########################################################################################################################
+
+w = 6.0
+h = 4.5
+d = 70
+plt.figure(figsize=(w, h), dpi=d)
+plt.semilogy(PositiveAutoCorrelated_Values, marker='o', alpha= 2.5, color="blue", label = "Positive Values")
+plt.semilogy(NegativeAutoCorrelated_Values, marker='*', alpha= 2.5, color="red", label = "Neagtive Values")
+#plt.axhline(y = confidencelevel_upper, color='g', linestyle=':', label = "line 2")
+plt.title('Auto-Correlation',fontsize=12) # To insert the title of the plotted//
+plt.xlabel("Delay(Bits)", fontsize=9)
+plt.ylabel("Auto-Correlation Coefficient", fontsize=9)
+#plt.grid()
+plt.legend(loc='upper right')
+plt.show()
+
